@@ -1,6 +1,6 @@
 # \<feature-discovery\>
 
-A responsive element to represent create fab button with highlighted in a way (to use in first login).
+A responsive element to represent create fab button with material way - https://material.io/guidelines/growth-communications/feature-discovery.html#.
 
 ## Install the Polymer-CLI
 
