@@ -1,0 +1,290 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+
+<!--
+A paper-fab element that highlight feature. Ideal for empty states that require user's attention to the paper-fab.
+
+Example:
+
+    <feature-discovery-fab icon="add"
+                           feature-discovery="true"
+                           title='New feature'
+                           description='New feature description.'
+                           on-tap-fab="_onTapFab">
+    </feature-discovery-fab>
+
+
+@demo demo/index.html
+-->
+
+<dom-module id="feature-discovery-fab">
+  <template>
+    <style>
+      paper-fab {
+        @apply(--paper-fab-style);
+        --paper-fab-keyboard-focus-background: var(--dark-primary-color);
+      }
+
+      .feature-discovery {
+        width: 730px;
+        height: 730px;
+        position: fixed;
+        bottom: -317px;
+        right: -317px;
+        transform: scale(1);
+        transition: .5s transform ease-out;
+      }
+
+      .on.feature-discovery {
+        transform: scale(1);
+        transition: .05s transform ease-out;
+      }
+
+      .white, .pulse {
+        background: #fff;
+        height: 80px;
+        width: 80px;
+        margin-left: -40px;
+        margin-top: -40px;
+        transform: scale(0);
+        transition: .25s transform ease-in;
+      }
+
+      .primary-color {
+        background: rgba(103, 58, 183, .900);
+        height: 730px;
+        width: 730px;
+        box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.4);
+        margin-left: -365px;
+        margin-top: -365px;
+        transform: scale(0);
+        transition: .35s transform ease-in;
+
+      }
+
+      .off {
+        transform: scale(0);
+        transition: .5s transform ease-out .35s;
+      }
+
+      .on .white {
+        transform: scale(1);
+        transition: .25s transform ease-out;
+        animation: white_base .75s infinite ease-in;
+      }
+
+      .on .pulse {
+        transform: scale(1);
+        transition: .25s transform ease-out;
+        background: #fff;
+        animation: pulse .75s infinite ease-in;
+      }
+
+      .on .primary-color {
+        transform: scale(1);
+        transition: .35s transform ease-in-out;
+      }
+
+      .white, .pulse, .primary-color {
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+      }
+
+      .desc {
+        position: absolute;
+        color: #fff;
+        top: 50%;
+        right: 45%;
+        width: 300px;
+
+        margin-top: -140px;
+        vertical-align: bottom;
+        opacity: 0;
+        transition: .25s all ease-in-out;
+      }
+
+      .on .desc {
+        top: 45%;
+        opacity: 1;
+        transition: .5s all ease-in-out .25s;
+      }
+
+      .desc > * {
+        margin: 0 20px;
+      }
+
+      .desc .title {
+        margin-bottom: .5em;
+      }
+
+      @keyframes white_base {
+        0% {
+          transform: scale(1)
+        }
+        20% {
+          transform: scale(1.05)
+        }
+        50% {
+          transform: scale(1)
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1)
+        }
+        25% {
+          transform: scale(1.05);
+          opacity: .5;
+        }
+        75% {
+          transform: scale(2.5);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(3);
+          opacity: 0;
+        }
+      }
+
+      .dismiss-fab {
+        background: transparent;
+        height: 0;
+        width: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+      .dismiss-fab.show {
+        height: 100vh;
+        width: 100vw;
+      }
+
+    </style>
+
+    <div id="dismiss_fab" class="dismiss-fab show" on-tap="_hideFab"></div>
+    <div id="feature_discovery" class$="feature-discovery [[featureClass]] hide">
+      <div class="primary-color"></div>
+      <div class="white"></div>
+      <div class="pulse"></div>
+      <div class="desc">
+        <h3 class="title">[[title]]</h3>
+        <p class="text">[[description]]</p>
+      </div>
+    </div>
+
+    <paper-fab id="fab" icon="[[icon]]" on-tap="_onTapFab"></paper-fab>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'feature-discovery-fab',
+      behaviors: [Polymer.NeonAnimationRunnerBehavior],
+
+      properties: {
+        /**
+         * If true, the element show feature discovery button
+         */
+        featureDiscovery: {
+          type: Boolean,
+          value: false,
+          observer: '_setFeatureDiscoveryClass'
+        },
+
+        featureClass: {
+          type: String,
+          readOnly: true
+        },
+
+        openOnce: {
+          type: Boolean,
+          readOnly: true
+        },
+
+        /**
+         * Specifies the icon name or index in the set of icons available in
+         * the icon's icon set.
+         */
+        icon: {
+          type: String
+        },
+        /**
+         * Specifies the title text to be shown in feature discovery
+         */
+        title: {
+          type: String
+        },
+        /**
+         * Specifies the description text to be shown in feature discovery
+         */
+        description: {
+          type: String
+        }
+      },
+
+      // Element Lifecycle
+
+      ready: function () {
+        // `ready` is called after all elements have been configured, but
+        // propagates bottom-up. This element's children are ready, but parents
+        // are not.
+        //
+        // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+      },
+
+      attached: function () {
+        // `attached` fires once the element and its parents have been inserted
+        // into a document.
+        //
+        // This is a good place to perform any work related to your element's
+        // visual state or active behavior (measuring sizes, beginning animations,
+        // loading resources, etc).
+      },
+
+      detached: function () {
+        // The analog to `attached`, `detached` fires when the element has been
+        // removed from a document.
+        //
+        // Use this to clean up anything you did in `attached`.
+      },
+
+      _setFeatureDiscoveryClass: function () {
+        if (this.featureDiscovery && !this.openOnce) {
+          setTimeout(function () {
+            if (this.featureDiscovery) {
+              this._setOpenOnce(true);
+              this._setFeatureClass('on');
+              this.$.feature_discovery.classList.remove('hide');
+            }
+          }.bind(this), 1000);
+        } else {
+          this._setFeatureClass('off');
+          this.$.feature_discovery.classList.remove('hide');
+          this.$.dismiss_fab.classList.remove('show');
+        }
+      },
+
+      _onTapFab: function (e) {
+        this._setFeatureClass('off');
+        this.$.feature_discovery.classList.remove('hide');
+        this.$.dismiss_fab.classList.remove('show');
+
+        this.fire('tap-fab', {});
+      },
+
+      _hideFab: function (e) {
+        this._setFeatureClass('off');
+        this.$.feature_discovery.classList.remove('hide');
+        this.$.dismiss_fab.classList.remove('show');
+      }
+
+
+    });
+  </script>
+</dom-module>
